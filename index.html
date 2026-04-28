@@ -326,6 +326,9 @@
             max-width: 1600px;
             margin: 0 auto;
         }
+        .main-container.user-view {
+            grid-template-columns: 1fr;
+        }
         .panel {
             background: var(--panel-bg);
             border: 1px solid rgba(255, 255, 255, 0.08);
@@ -716,7 +719,7 @@
         .log-action { color: #666; }
         .log-file { color: var(--neon-purple); }
         @media (max-width: 1024px) {
-            .main-container { grid-template-columns: 1fr; }
+            .main-container, .main-container.user-view { grid-template-columns: 1fr; }
             .stats-bar { flex-wrap: wrap; }
             .stat-card { min-width: calc(50% - 15px); }
         }
@@ -724,7 +727,7 @@
             .header { flex-direction: column; gap: 15px; }
             .stats-bar { padding: 15px; }
             .stat-card { min-width: 100%; }
-            .main-container { padding: 15px; }
+            .main-container, .main-container.user-view { padding: 15px; }
         }
         ::-webkit-scrollbar { width: 6px; }
         ::-webkit-scrollbar-track { background: var(--dark-bg); }
@@ -817,9 +820,9 @@
             </div>
         </div>
 
-        <div class="main-container">
-            <!-- Left Panel: Upload -->
-            <div>
+        <div class="main-container" id="mainContainer">
+            <!-- Left Panel: Upload (HIDDEN for users) -->
+            <div id="adminPanel">
                 <div class="panel" id="uploadPanel">
                     <div class="panel-header">
                         <div class="panel-title">Add Loader</div>
@@ -873,7 +876,7 @@
                     </button>
                 </div>
 
-                <!-- Settings Panel (Admin Only) -->
+                <!-- Settings Panel -->
                 <div class="panel" id="settingsPanel" style="margin-top: 25px;">
                     <div class="panel-header">
                         <div class="panel-title">⚙ Hub Settings</div>
@@ -1068,12 +1071,20 @@
                 });
 
             const isAdmin = currentUser.role === 'admin';
-            document.getElementById('settingsPanel').style.display = isAdmin ? 'block' : 'none';
-            document.getElementById('logsPanel').style.display = isAdmin ? 'block' : 'none';
+            const mainContainer = document.getElementById('mainContainer');
+            const adminPanel = document.getElementById('adminPanel');
+            const logsPanel = document.getElementById('logsPanel');
             
-            if (!isAdmin) {
-                document.getElementById('uploadBtn').disabled = true;
-                document.getElementById('uploadBtn').innerHTML = '<span>ADMIN ONLY</span>';
+            if (isAdmin) {
+                // Admin view: show everything
+                mainContainer.classList.remove('user-view');
+                adminPanel.style.display = 'block';
+                logsPanel.style.display = 'block';
+            } else {
+                // User view: hide admin panels, expand loaders to full width
+                mainContainer.classList.add('user-view');
+                adminPanel.style.display = 'none';
+                logsPanel.style.display = 'none';
             }
 
             const savedShopId = localStorage.getItem('cosmoShopId');
@@ -1150,7 +1161,6 @@
             const category = document.getElementById('category').value;
             const description = document.getElementById('description').value.trim();
             
-            // FIX: URL validation - auto-add https:// if missing
             let downloadUrl = document.getElementById('downloadUrl').value.trim();
             if (downloadUrl && !downloadUrl.startsWith('http://') && !downloadUrl.startsWith('https://')) {
                 downloadUrl = 'https://' + downloadUrl;
@@ -1195,7 +1205,6 @@
                 updateStats();
             }
 
-            // Reset form
             document.getElementById('productName').value = '';
             document.getElementById('version').value = '';
             document.getElementById('description').value = '';
@@ -1328,7 +1337,6 @@
                 url = 'https://' + url;
             }
 
-            // Update stats
             loader.downloads = (loader.downloads || 0) + 1;
             if (!Array.isArray(loader.downloadLog)) loader.downloadLog = [];
             loader.downloadLog.push({
@@ -1344,7 +1352,6 @@
                 }).catch(err => console.error('Firebase update error:', err));
             }
 
-            // FIX: Use anchor tag instead of window.open() to bypass popup blockers
             const a = document.createElement('a');
             a.href = url;
             a.target = '_blank';
