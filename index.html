@@ -14,7 +14,6 @@
             --neon-pink: #ff00aa;
             --neon-purple: #9d00ff;
             --neon-green: #00ff88;
-            --neon-orange: #ff8800;
             --dark-bg: #050508;
             --panel-bg: rgba(12, 12, 20, 0.9);
             --danger: #ff0055;
@@ -49,7 +48,6 @@
         }
         .orb-1 { width: 500px; height: 500px; background: var(--neon-cyan); top: -10%; left: -10%; animation-delay: 0s; }
         .orb-2 { width: 400px; height: 400px; background: var(--neon-pink); bottom: -10%; right: -10%; animation-delay: -10s; }
-        .orb-3 { width: 300px; height: 300px; background: var(--neon-orange); top: 40%; left: 60%; animation-delay: -5s; opacity: 0.05; }
         @keyframes orbFloat {
             0%, 100% { transform: translate(0, 0) scale(1); }
             33% { transform: translate(30px, -30px) scale(1.1); }
@@ -309,7 +307,6 @@
         .stat-icon.pink { background: rgba(255, 0, 170, 0.1); color: var(--neon-pink); }
         .stat-icon.green { background: rgba(0, 255, 136, 0.1); color: var(--neon-green); }
         .stat-icon.purple { background: rgba(157, 0, 255, 0.1); color: var(--neon-purple); }
-        .stat-icon.orange { background: rgba(255, 136, 0, 0.1); color: var(--neon-orange); }
         .stat-content h3 {
             font-family: 'Orbitron', sans-serif;
             font-size: 1.5rem;
@@ -363,10 +360,6 @@
             width: 4px; height: 18px;
             background: linear-gradient(to bottom, var(--neon-cyan), var(--neon-purple));
             border-radius: 2px;
-        }
-        .panel-title.orange { color: var(--neon-orange); }
-        .panel-title.orange::before {
-            background: linear-gradient(to bottom, var(--neon-orange), var(--neon-pink));
         }
         .form-group { margin-bottom: 18px; }
         .form-label {
@@ -470,15 +463,6 @@
             background: rgba(255, 0, 85, 0.25);
             box-shadow: 0 0 20px rgba(255, 0, 85, 0.3);
         }
-        .btn-warning {
-            background: rgba(255, 136, 0, 0.15);
-            color: var(--neon-orange);
-            border: 1px solid rgba(255, 136, 0, 0.3);
-        }
-        .btn-warning:hover {
-            background: rgba(255, 136, 0, 0.25);
-            box-shadow: 0 0 20px rgba(255, 136, 0, 0.3);
-        }
         .btn-sm { padding: 6px 12px; font-size: 0.65rem; }
         .toolbar {
             display: flex;
@@ -522,36 +506,6 @@
             font-family: 'Rajdhani', sans-serif;
             outline: none;
         }
-        .tab-bar {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 20px;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-            padding-bottom: 15px;
-        }
-        .tab-btn {
-            padding: 10px 20px;
-            background: rgba(0, 0, 0, 0.3);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 8px;
-            color: #666;
-            font-family: 'Orbitron', sans-serif;
-            font-size: 0.75rem;
-            cursor: pointer;
-            transition: all 0.3s;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
-        .tab-btn.active {
-            border-color: var(--neon-cyan);
-            color: var(--neon-cyan);
-            background: rgba(0, 240, 255, 0.1);
-        }
-        .tab-btn.proaim.active {
-            border-color: var(--neon-orange);
-            color: var(--neon-orange);
-            background: rgba(255, 136, 0, 0.1);
-        }
         .loaders-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
@@ -566,12 +520,6 @@
             overflow: hidden;
             transition: all 0.3s;
             animation: cardEnter 0.4s ease;
-        }
-        .loader-card.proaim {
-            border-color: rgba(255, 136, 0, 0.1);
-        }
-        .loader-card.proaim::before {
-            background: linear-gradient(90deg, var(--neon-orange), var(--neon-pink));
         }
         @keyframes cardEnter {
             from { opacity: 0; transform: translateY(20px); }
@@ -615,11 +563,6 @@
             border-radius: 4px;
             border: 1px solid rgba(0, 240, 255, 0.2);
             margin-top: 5px;
-        }
-        .loader-version.proaim {
-            background: rgba(255, 136, 0, 0.1);
-            color: var(--neon-orange);
-            border-color: rgba(255, 136, 0, 0.2);
         }
         .loader-meta {
             display: grid;
@@ -671,15 +614,6 @@
             border: 1px solid rgba(157, 0, 255, 0.3);
         }
         .btn-copy:hover { background: rgba(157, 0, 255, 0.2); }
-        .btn-edit {
-            background: rgba(255, 170, 0, 0.1);
-            color: var(--warning);
-            border: 1px solid rgba(255, 170, 0, 0.3);
-        }
-        .btn-edit:hover {
-            background: rgba(255, 170, 0, 0.2);
-            box-shadow: 0 0 15px rgba(255, 170, 0, 0.2);
-        }
         .status-indicator {
             position: absolute;
             top: 20px; right: 20px;
@@ -688,10 +622,6 @@
             background: var(--neon-green);
             box-shadow: 0 0 10px var(--neon-green);
             animation: pulse 2s infinite;
-        }
-        .status-indicator.proaim {
-            background: var(--neon-orange);
-            box-shadow: 0 0 10px var(--neon-orange);
         }
         @keyframes pulse {
             0%, 100% { opacity: 1; transform: scale(1); }
@@ -759,9 +689,6 @@
             box-shadow: 0 25px 60px rgba(0, 0, 0, 0.6);
             animation: modalPop 0.3s ease;
         }
-        .modal.wide {
-            max-width: 600px;
-        }
         @keyframes modalPop {
             from { transform: scale(0.9); opacity: 0; }
             to { transform: scale(1); opacity: 1; }
@@ -801,7 +728,6 @@
             .stats-bar { padding: 15px; }
             .stat-card { min-width: 100%; }
             .main-container, .main-container.user-view { padding: 15px; }
-            .tab-bar { flex-wrap: wrap; }
         }
         ::-webkit-scrollbar { width: 6px; }
         ::-webkit-scrollbar-track { background: var(--dark-bg); }
@@ -824,7 +750,6 @@
     <div class="bg-grid"></div>
     <div class="bg-orb orb-1"></div>
     <div class="bg-orb orb-2"></div>
-    <div class="bg-orb orb-3"></div>
 
     <!-- LOGIN SCREEN -->
     <div class="login-screen" id="loginScreen">
@@ -887,10 +812,10 @@
                 </div>
             </div>
             <div class="stat-card">
-                <div class="stat-icon orange">🎯</div>
+                <div class="stat-icon purple">☁</div>
                 <div class="stat-content">
-                    <h3 id="proaimCount">0</h3>
-                    <p>ProAim Loaders</p>
+                    <h3 id="cloudStatus">ON</h3>
+                    <p>Cloud Sync</p>
                 </div>
             </div>
         </div>
@@ -989,15 +914,9 @@
                     </select>
                 </div>
 
-                <!-- Tabs -->
-                <div class="tab-bar" id="tabBar">
-                    <button class="tab-btn active" onclick="switchTab('all')">All Loaders</button>
-                    <button class="tab-btn proaim" onclick="switchTab('proaim')">🎯 ProAim</button>
-                </div>
-
                 <div class="panel">
                     <div class="panel-header">
-                        <div class="panel-title" id="listTitle">Active Loaders</div>
+                        <div class="panel-title">Active Loaders</div>
                         <span style="color: #444; font-size: 0.8rem;" id="loaderCount">0 items</span>
                     </div>
                     <div id="loadersContainer">
@@ -1051,52 +970,6 @@
         </div>
     </div>
 
-    <!-- Edit Modal -->
-    <div class="modal-overlay" id="editModal">
-        <div class="modal wide">
-            <div class="modal-title">✏ Edit Loader</div>
-            <div class="form-group">
-                <label class="form-label">Product Name</label>
-                <input type="text" class="form-input" id="editName">
-            </div>
-            <div class="form-group">
-                <label class="form-label">Version</label>
-                <input type="text" class="form-input" id="editVersion">
-            </div>
-            <div class="form-group">
-                <label class="form-label">Category</label>
-                <select class="form-select" id="editCategory">
-                    <option value="loader">Loader</option>
-                    <option value="fix">System Fix</option>
-                    <option value="tool">Utility Tool</option>
-                    <option value="update">Update Patch</option>
-                    <option value="bypass">Bypass</option>
-                    <option value="proaim">ProAim</option>
-                </select>
-            </div>
-            <div class="form-group">
-                <label class="form-label">Description</label>
-                <textarea class="form-textarea" id="editDescription"></textarea>
-            </div>
-            <div class="form-group">
-                <label class="form-label">Download URL</label>
-                <input type="url" class="form-input" id="editDownloadUrl">
-            </div>
-            <div class="toggle-row">
-                <span class="toggle-label">Password Protected</span>
-                <div class="toggle-switch" id="editPasswordToggle" onclick="toggleSwitch(this)"></div>
-            </div>
-            <div class="form-group" id="editPasswordField" style="display:none;">
-                <label class="form-label">Download Password</label>
-                <input type="text" class="form-input" id="editDownloadPassword">
-            </div>
-            <div class="modal-actions">
-                <button class="btn btn-secondary" onclick="closeEditModal()">Cancel</button>
-                <button class="btn btn-primary" onclick="saveEdit()">Save Changes</button>
-            </div>
-        </div>
-    </div>
-
     <script>
         // ==================== YOUR FIREBASE CONFIG (PRE-BAKED) ====================
         const firebaseConfig = {
@@ -1131,36 +1004,6 @@
             SELLAUTH_SHOP_ID: ''
         };
 
-        // ==================== PROAIM LOADERS (PRE-LOADED) ====================
-        const PROAIM_LOADERS = [
-            { name: "ARENA BREAKOUT", url: "https://mega.nz/folder/eENVwCQS#BcJG1yVFAeTHuCSM3TzmQg" },
-            { name: "Apex Legends", url: "https://mega.nz/folder/zc8hXK7Y#IIIbhuCLlHe4CGRIVbErSw" },
-            { name: "Battlefield Series (6, 2042, V, 1)", url: "https://mega.nz/folder/SR9BBTAB#f3zC1q8hBFKYShxG3cjHug" },
-            { name: "BattleBit", url: "https://mega.nz/folder/yc1lwRQQ#0zj_ONNkkfKeKk3Zra8gUA" },
-            { name: "Bloodhunt", url: "https://mega.nz/folder/PEMEBIwK#KEypUNa0YdFlpyxX_7psXg" },
-            { name: "Call Of Duty", url: "https://mega.nz/folder/ORsFGQDT#nOKWTNSs97e42MbQhuIoSg" },
-            { name: "Counter Strike 2", url: "https://mega.nz/folder/yRsWyI7b#YR0_Z6Xxl1HoI9Z22n62Nw" },
-            { name: "Dead By Daylight", url: "https://mega.nz/folder/iB9mUYQZ#SCkfK2WE2I917V-wKqZpiA" },
-            { name: "Fortnite", url: "https://mega.nz/folder/PRtRXIqQ#ABd9aptMP8XbOPnKT38rOQ" },
-            { name: "Squad", url: "https://mega.nz/folder/aFkSwDiQ#QpBfD_CxkjHFw4WNsnQifg" },
-            { name: "Unturned", url: "https://mega.nz/folder/OY9zxJLa#qYn_AtWrMBPFdSYX3fjfWw" },
-            { name: "War Thunder", url: "https://mega.nz/folder/qMFTWRgA#Qj3LVSo8CFik1-xgDBUkzw" },
-            { name: "World War 3", url: "https://mega.nz/folder/vQdBgBgY#8iq7gzDZCQZU6K6DmpINpA" },
-            { name: "Rogue Company", url: "https://mega.nz/folder/DN80DbbL#D_Rq_CYCTzwv5k-I74JhuA" },
-            { name: "Insurgency: Sandstorm", url: "https://mega.nz/folder/DNtgRaTD#hdf6ZOa7qDEtJqKChtPNCQ" },
-            { name: "Deadside", url: "https://mega.nz/folder/rcMyFJJS#JtMQjJ_ULEtS5vycbL-4jQ" },
-            { name: "Escape From Tarkov", url: "https://mega.nz/folder/XUEiSaiB#bfzTuh_U_UCuX9bvy2dM1Q" },
-            { name: "Escape From Tarkov (Arena Only)", url: "https://mega.nz/folder/7QdHkDbT#qh4Eg2rYQVaCEhIRZ_9UeQ" },
-            { name: "Dark and Darker (D&D)", url: "https://mega.nz/folder/nM9z3BZT#YpZeaXREYz2s1LoQsTUXiQ" },
-            { name: "PUBG", url: "https://mega.nz/folder/rY9VSCBS#CbBHeuiHBvjPw0cKRTOWbA" },
-            { name: "The Finals", url: "https://mega.nz/folder/rVFB3DYL#BHnu0ccICJ5JJ3My1r0ocg" },
-            { name: "GrayZone Warfare (GZW)", url: "https://mega.nz/folder/aZUCSarS#OeYQAABP7rdRNttqTX4Mog" },
-            { name: "PROJECT L33T", url: "https://mega.nz/folder/nENWmTBA#ihE9LfVxKmhqToqieOUqAQ" },
-            { name: "DELTA FORCE BUILDS", url: "https://mega.nz/folder/HVUASR6K#auqMr1B8eStuSdiqsabdnA" },
-            { name: "ARK RAIDERS", url: "https://mega.nz/folder/nRUWiKoI#RSfQ5Bh9oSBWpRhnvLxm7g" },
-            { name: "COD NEXT, Ranked", url: "https://mega.nz/folder/LIUjhIia#Jwi4ptmhnMc-Icv5hWB5uQ" }
-        ];
-
         // ==================== STATE ====================
         let currentUser = null;
         let currentRole = 'user';
@@ -1168,8 +1011,6 @@
         let logs = [];
         let deleteTarget = null;
         let passwordTarget = null;
-        let editTarget = null;
-        let currentTab = 'all';
         let loadersRef = null;
         let logsRef = null;
 
@@ -1235,10 +1076,12 @@
             const logsPanel = document.getElementById('logsPanel');
             
             if (isAdmin) {
+                // Admin view: show everything
                 mainContainer.classList.remove('user-view');
                 adminPanel.style.display = 'block';
                 logsPanel.style.display = 'block';
             } else {
+                // User view: hide admin panels, expand loaders to full width
                 mainContainer.classList.add('user-view');
                 adminPanel.style.display = 'none';
                 logsPanel.style.display = 'none';
@@ -1255,7 +1098,6 @@
             } else {
                 loaders = JSON.parse(localStorage.getItem('cosmoLoaders_v2')) || [];
                 logs = JSON.parse(localStorage.getItem('cosmoLogs')) || [];
-                injectProaimLoaders();
                 renderLoaders();
                 updateStats();
                 renderLogs();
@@ -1275,7 +1117,6 @@
             loadersRef.on('value', (snapshot) => {
                 const data = snapshot.val();
                 loaders = data ? Object.values(data) : [];
-                injectProaimLoaders();
                 renderLoaders();
                 updateStats();
             });
@@ -1300,67 +1141,11 @@
             });
         }
 
-        // ==================== PROAIM INJECTION ====================
-        function injectProaimLoaders() {
-            // Check which ProAim loaders are already in the list
-            const existingNames = new Set(loaders.map(l => l.name));
-            let added = 0;
-            
-            PROAIM_LOADERS.forEach(pro => {
-                if (!existingNames.has(pro.name)) {
-                    loaders.push({
-                        id: 'proaim_' + pro.name.replace(/[^a-zA-Z0-9]/g, '_'),
-                        name: pro.name,
-                        filename: 'ProAim Loader',
-                        version: 'Latest',
-                        category: 'proaim',
-                        description: 'Official ProAim loader for ' + pro.name,
-                        size: 0,
-                        downloadUrl: pro.url,
-                        requireSellAuth: false,
-                        requirePassword: false,
-                        downloadPassword: null,
-                        uploadedBy: 'ProAim',
-                        uploadedAt: new Date().toISOString(),
-                        downloads: 0,
-                        downloadLog: []
-                    });
-                    added++;
-                }
-            });
-            
-            if (added > 0 && !firebaseConnected) {
-                localStorage.setItem('cosmoLoaders_v2', JSON.stringify(loaders));
-            }
-        }
-
-        // ==================== TABS ====================
-        function switchTab(tab) {
-            currentTab = tab;
-            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
-            event.target.classList.add('active');
-            
-            const title = document.getElementById('listTitle');
-            if (tab === 'proaim') {
-                title.textContent = '🎯 ProAim Loaders';
-                title.classList.add('orange');
-            } else {
-                title.textContent = 'Active Loaders';
-                title.classList.remove('orange');
-            }
-            
-            renderLoaders();
-        }
-
         // ==================== ADD LOADER ====================
         function toggleSwitch(el) {
             el.classList.toggle('active');
             if (el.id === 'passwordToggle') {
                 document.getElementById('passwordField').style.display = 
-                    el.classList.contains('active') ? 'block' : 'none';
-            }
-            if (el.id === 'editPasswordToggle') {
-                document.getElementById('editPasswordField').style.display = 
                     el.classList.contains('active') ? 'block' : 'none';
             }
         }
@@ -1433,97 +1218,10 @@
             showToast('Loader added to cloud!', 'success');
         }
 
-        // ==================== EDIT LOADER ====================
-        function openEditModal(id) {
-            if (currentUser?.role !== 'admin') {
-                showToast('Admin only', 'error');
-                return;
-            }
-            
-            const loader = loaders.find(l => l.id == id);
-            if (!loader) {
-                showToast('Loader not found', 'error');
-                return;
-            }
-            
-            editTarget = id;
-            document.getElementById('editName').value = loader.name;
-            document.getElementById('editVersion').value = loader.version;
-            document.getElementById('editCategory').value = loader.category;
-            document.getElementById('editDescription').value = loader.description || '';
-            document.getElementById('editDownloadUrl').value = loader.downloadUrl || '';
-            
-            const passToggle = document.getElementById('editPasswordToggle');
-            if (loader.requirePassword) {
-                passToggle.classList.add('active');
-                document.getElementById('editPasswordField').style.display = 'block';
-                document.getElementById('editDownloadPassword').value = loader.downloadPassword || '';
-            } else {
-                passToggle.classList.remove('active');
-                document.getElementById('editPasswordField').style.display = 'none';
-                document.getElementById('editDownloadPassword').value = '';
-            }
-            
-            document.getElementById('editModal').classList.add('active');
-        }
-
-        function closeEditModal() {
-            document.getElementById('editModal').classList.remove('active');
-            editTarget = null;
-        }
-
-        async function saveEdit() {
-            if (!editTarget || currentUser?.role !== 'admin') {
-                showToast('Admin only', 'error');
-                return;
-            }
-            
-            const loader = loaders.find(l => l.id == editTarget);
-            if (!loader) {
-                showToast('Loader not found', 'error');
-                return;
-            }
-            
-            let downloadUrl = document.getElementById('editDownloadUrl').value.trim();
-            if (downloadUrl && !downloadUrl.startsWith('http://') && !downloadUrl.startsWith('https://')) {
-                downloadUrl = 'https://' + downloadUrl;
-            }
-            
-            const updates = {
-                name: document.getElementById('editName').value.trim(),
-                version: document.getElementById('editVersion').value.trim(),
-                category: document.getElementById('editCategory').value,
-                description: document.getElementById('editDescription').value.trim(),
-                downloadUrl: downloadUrl,
-                requirePassword: document.getElementById('editPasswordToggle').classList.contains('active'),
-                downloadPassword: document.getElementById('editDownloadPassword').value || null
-            };
-            
-            // Update local object
-            Object.assign(loader, updates);
-            
-            if (firebaseConnected) {
-                await database.ref('loaders/' + editTarget).update(updates);
-            } else {
-                localStorage.setItem('cosmoLoaders_v2', JSON.stringify(loaders));
-                renderLoaders();
-                updateStats();
-            }
-            
-            closeEditModal();
-            addLog('EDIT', `${loader.name} updated by ${currentUser.name}`);
-            showToast('Loader updated!', 'success');
-        }
-
         // ==================== RENDER ====================
         function renderLoaders() {
             const container = document.getElementById('loadersContainer');
-            let filtered = getFilteredLoaders();
-            
-            // Filter by tab
-            if (currentTab === 'proaim') {
-                filtered = filtered.filter(l => l.category === 'proaim');
-            }
+            const filtered = getFilteredLoaders();
             
             document.getElementById('loaderCount').textContent = `${filtered.length} items`;
 
@@ -1532,7 +1230,7 @@
                     <div class="empty-state">
                         <div class="empty-state-icon">📦</div>
                         <div>No loaders found</div>
-                        <div style="font-size: 0.8rem; margin-top: 10px;">${currentTab === 'proaim' ? 'ProAim section is empty' : 'Add a loader to get started'}</div>
+                        <div style="font-size: 0.8rem; margin-top: 10px;">Add a loader to get started</div>
                     </div>
                 `;
                 return;
@@ -1540,18 +1238,16 @@
 
             container.innerHTML = '<div class="loaders-grid">' + filtered.map(loader => {
                 const isAdmin = currentUser?.role === 'admin';
-                const isProaim = loader.category === 'proaim';
                 
                 return `
-                <div class="loader-card ${isProaim ? 'proaim' : ''}">
-                    <div class="status-indicator ${isProaim ? 'proaim' : ''}"></div>
+                <div class="loader-card">
+                    <div class="status-indicator"></div>
                     <div class="loader-header">
                         <div>
                             <div class="loader-name">${escapeHtml(loader.name)}</div>
-                            <span class="loader-version ${isProaim ? 'proaim' : ''}">${escapeHtml(loader.version)}</span>
+                            <span class="loader-version">${escapeHtml(loader.version)}</span>
                             ${loader.requireSellAuth ? '<span style="color: var(--neon-pink); font-size: 0.7rem; margin-left: 5px;">[SELLAUTH]</span>' : ''}
                             ${loader.requirePassword ? '<span style="color: var(--warning); font-size: 0.7rem; margin-left: 5px;">[LOCKED]</span>' : ''}
-                            ${isProaim ? '<span style="color: var(--neon-orange); font-size: 0.7rem; margin-left: 5px;">[PROAIM]</span>' : ''}
                         </div>
                     </div>
                     <div class="loader-meta">
@@ -1569,7 +1265,6 @@
                                 ⬇ Download
                             </button>
                             ${isAdmin ? `
-                            <button class="btn btn-edit btn-sm" onclick="openEditModal('${loader.id}')">✏</button>
                             <button class="btn btn-copy btn-sm" onclick="copyLink('${loader.id}')">📋</button>
                             <button class="btn btn-danger btn-sm" onclick="promptDelete('${loader.id}')">🗑</button>
                             ` : ''}
@@ -1601,7 +1296,7 @@
             return div.innerHTML;
         }
 
-        // ==================== DOWNLOAD ====================
+        // ==================== DOWNLOAD (FIXED) ====================
         function initDownload(id) {
             console.log('Download clicked for ID:', id);
             const loader = loaders.find(l => l.id == id);
@@ -1831,7 +1526,6 @@ Status: Active`;
         function updateStats() {
             document.getElementById('totalLoaders').textContent = loaders.length;
             document.getElementById('totalDownloads').textContent = loaders.reduce((a, b) => a + (b.downloads || 0), 0);
-            document.getElementById('proaimCount').textContent = loaders.filter(l => l.category === 'proaim').length;
         }
 
         function showToast(message, type = 'success') {
@@ -1856,9 +1550,6 @@ Status: Active`;
         });
         document.getElementById('passwordModal').addEventListener('click', (e) => {
             if (e.target === document.getElementById('passwordModal')) closePasswordModal();
-        });
-        document.getElementById('editModal').addEventListener('click', (e) => {
-            if (e.target === document.getElementById('editModal')) closeEditModal();
         });
     </script>
 </body>
