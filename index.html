@@ -1,0 +1,1549 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>COSMO LOADER HUB | Cloud Synced</title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@300;500;700&display=swap" rel="stylesheet">
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --neon-cyan: #00f0ff;
+            --neon-pink: #ff00aa;
+            --neon-purple: #9d00ff;
+            --neon-green: #00ff88;
+            --dark-bg: #050508;
+            --panel-bg: rgba(12, 12, 20, 0.9);
+            --danger: #ff0055;
+            --warning: #ffaa00;
+        }
+        body {
+            font-family: 'Rajdhani', sans-serif;
+            background: var(--dark-bg);
+            color: #e0e0e0;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+        .bg-grid {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background-image: 
+                linear-gradient(rgba(0, 240, 255, 0.02) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 240, 255, 0.02) 1px, transparent 1px);
+            background-size: 40px 40px;
+            pointer-events: none;
+            z-index: 0;
+        }
+        .bg-orb {
+            position: fixed;
+            border-radius: 50%;
+            filter: blur(120px);
+            opacity: 0.08;
+            pointer-events: none;
+            z-index: 0;
+            animation: orbFloat 20s infinite ease-in-out;
+        }
+        .orb-1 { width: 500px; height: 500px; background: var(--neon-cyan); top: -10%; left: -10%; animation-delay: 0s; }
+        .orb-2 { width: 400px; height: 400px; background: var(--neon-pink); bottom: -10%; right: -10%; animation-delay: -10s; }
+        @keyframes orbFloat {
+            0%, 100% { transform: translate(0, 0) scale(1); }
+            33% { transform: translate(30px, -30px) scale(1.1); }
+            66% { transform: translate(-20px, 20px) scale(0.9); }
+        }
+        .login-screen {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: var(--dark-bg);
+            z-index: 1000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+        }
+        .login-box {
+            background: var(--panel-bg);
+            border: 1px solid rgba(0, 240, 255, 0.2);
+            border-radius: 20px;
+            padding: 50px;
+            width: 90%;
+            max-width: 450px;
+            text-align: center;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+            position: relative;
+            overflow: hidden;
+        }
+        .login-box::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0;
+            width: 100%; height: 3px;
+            background: linear-gradient(90deg, var(--neon-cyan), var(--neon-purple), var(--neon-pink));
+        }
+        .login-logo {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 2rem;
+            font-weight: 900;
+            background: linear-gradient(135deg, var(--neon-cyan), var(--neon-purple));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+            letter-spacing: 4px;
+        }
+        .login-subtitle {
+            color: #555;
+            font-size: 0.9rem;
+            margin-bottom: 30px;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+        }
+        .role-selector {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        .role-btn {
+            flex: 1;
+            padding: 12px;
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            color: #666;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.75rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        .role-btn.active {
+            border-color: var(--neon-cyan);
+            color: var(--neon-cyan);
+            background: rgba(0, 240, 255, 0.1);
+            box-shadow: 0 0 15px rgba(0, 240, 255, 0.2);
+        }
+        .role-btn.admin.active {
+            border-color: var(--neon-pink);
+            color: var(--neon-pink);
+            background: rgba(255, 0, 170, 0.1);
+            box-shadow: 0 0 15px rgba(255, 0, 170, 0.2);
+        }
+        .login-input {
+            width: 100%;
+            padding: 15px 20px;
+            background: rgba(0, 0, 0, 0.4);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            color: #fff;
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 1.1rem;
+            margin-bottom: 15px;
+            outline: none;
+            transition: all 0.3s;
+        }
+        .login-input:focus {
+            border-color: var(--neon-cyan);
+            box-shadow: 0 0 20px rgba(0, 240, 255, 0.2);
+        }
+        .login-btn {
+            width: 100%;
+            padding: 16px;
+            background: linear-gradient(135deg, var(--neon-cyan), var(--neon-purple));
+            border: none;
+            border-radius: 10px;
+            color: #000;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1rem;
+            font-weight: 700;
+            cursor: pointer;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            transition: all 0.3s;
+            margin-top: 10px;
+        }
+        .login-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(0, 240, 255, 0.4);
+        }
+        .login-error {
+            color: var(--danger);
+            font-size: 0.85rem;
+            margin-top: 15px;
+            display: none;
+            animation: shake 0.5s;
+        }
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-10px); }
+            75% { transform: translateX(10px); }
+        }
+        .app { display: none; }
+        .app.active { display: block; }
+        .header {
+            position: relative;
+            z-index: 10;
+            padding: 20px 40px;
+            background: rgba(5, 5, 8, 0.95);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(0, 240, 255, 0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .logo-area {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        .logo {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.6rem;
+            font-weight: 900;
+            background: linear-gradient(135deg, var(--neon-cyan), var(--neon-purple));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+        }
+        .role-badge {
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.7rem;
+            font-family: 'Orbitron', sans-serif;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        .role-badge.admin {
+            background: rgba(255, 0, 170, 0.2);
+            color: var(--neon-pink);
+            border: 1px solid rgba(255, 0, 170, 0.3);
+        }
+        .role-badge.user {
+            background: rgba(0, 240, 255, 0.2);
+            color: var(--neon-cyan);
+            border: 1px solid rgba(0, 240, 255, 0.3);
+        }
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+        .user-info { text-align: right; }
+        .user-name { font-weight: 700; color: #fff; }
+        .user-ip { font-size: 0.75rem; color: #555; }
+        .sync-status {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 6px 12px;
+            background: rgba(0, 255, 136, 0.1);
+            border: 1px solid rgba(0, 255, 136, 0.2);
+            border-radius: 20px;
+            font-size: 0.75rem;
+            color: var(--neon-green);
+        }
+        .sync-status.offline {
+            background: rgba(255, 170, 0, 0.1);
+            border-color: rgba(255, 170, 0, 0.2);
+            color: var(--warning);
+        }
+        .sync-dot {
+            width: 6px; height: 6px;
+            border-radius: 50%;
+            background: currentColor;
+            animation: pulse 2s infinite;
+        }
+        .logout-btn {
+            padding: 8px 16px;
+            background: rgba(255, 0, 85, 0.1);
+            border: 1px solid rgba(255, 0, 85, 0.3);
+            border-radius: 6px;
+            color: var(--danger);
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.7rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-transform: uppercase;
+        }
+        .logout-btn:hover {
+            background: rgba(255, 0, 85, 0.2);
+            box-shadow: 0 0 15px rgba(255, 0, 85, 0.3);
+        }
+        .stats-bar {
+            display: flex;
+            gap: 20px;
+            padding: 20px 40px;
+            background: rgba(10, 10, 15, 0.8);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        .stat-card {
+            flex: 1;
+            background: var(--panel-bg);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            transition: all 0.3s;
+        }
+        .stat-card:hover {
+            border-color: rgba(0, 240, 255, 0.2);
+            transform: translateY(-2px);
+        }
+        .stat-icon {
+            width: 50px; height: 50px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+        }
+        .stat-icon.cyan { background: rgba(0, 240, 255, 0.1); color: var(--neon-cyan); }
+        .stat-icon.pink { background: rgba(255, 0, 170, 0.1); color: var(--neon-pink); }
+        .stat-icon.green { background: rgba(0, 255, 136, 0.1); color: var(--neon-green); }
+        .stat-icon.purple { background: rgba(157, 0, 255, 0.1); color: var(--neon-purple); }
+        .stat-content h3 {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.5rem;
+            color: #fff;
+        }
+        .stat-content p {
+            color: #555;
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        .main-container {
+            display: grid;
+            grid-template-columns: 380px 1fr;
+            gap: 25px;
+            padding: 25px 40px;
+            max-width: 1600px;
+            margin: 0 auto;
+        }
+        .panel {
+            background: var(--panel-bg);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 16px;
+            padding: 30px;
+            backdrop-filter: blur(20px);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            transition: all 0.3s ease;
+        }
+        .panel:hover { border-color: rgba(0, 240, 255, 0.15); }
+        .panel-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+        }
+        .panel-title {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1rem;
+            color: var(--neon-cyan);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .panel-title::before {
+            content: '';
+            width: 4px; height: 18px;
+            background: linear-gradient(to bottom, var(--neon-cyan), var(--neon-purple));
+            border-radius: 2px;
+        }
+        .form-group { margin-bottom: 18px; }
+        .form-label {
+            display: block;
+            margin-bottom: 6px;
+            color: #777;
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        .form-input, .form-select, .form-textarea {
+            width: 100%;
+            padding: 12px 15px;
+            background: rgba(0, 0, 0, 0.4);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 8px;
+            color: #fff;
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 0.95rem;
+            transition: all 0.3s;
+            outline: none;
+        }
+        .form-input:focus, .form-select:focus, .form-textarea:focus {
+            border-color: var(--neon-cyan);
+            box-shadow: 0 0 15px rgba(0, 240, 255, 0.15);
+        }
+        .form-textarea { min-height: 80px; resize: vertical; }
+        .form-input::placeholder, .form-textarea::placeholder { color: #333; }
+        .toggle-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        .toggle-label { color: #888; font-size: 0.85rem; }
+        .toggle-switch {
+            position: relative;
+            width: 50px; height: 26px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 13px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .toggle-switch.active { background: var(--neon-cyan); }
+        .toggle-switch::after {
+            content: '';
+            position: absolute;
+            top: 3px; left: 3px;
+            width: 20px; height: 20px;
+            background: #fff;
+            border-radius: 50%;
+            transition: all 0.3s;
+        }
+        .toggle-switch.active::after { left: 27px; }
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.8rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+        .btn-block { width: 100%; }
+        .btn-primary {
+            background: linear-gradient(135deg, var(--neon-cyan), var(--neon-purple));
+            color: #000;
+            box-shadow: 0 4px 20px rgba(0, 240, 255, 0.3);
+        }
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 30px rgba(0, 240, 255, 0.5);
+        }
+        .btn-primary:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.05);
+            color: #aaa;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.1);
+            color: #fff;
+        }
+        .btn-danger {
+            background: rgba(255, 0, 85, 0.15);
+            color: var(--danger);
+            border: 1px solid rgba(255, 0, 85, 0.3);
+        }
+        .btn-danger:hover {
+            background: rgba(255, 0, 85, 0.25);
+            box-shadow: 0 0 20px rgba(255, 0, 85, 0.3);
+        }
+        .btn-sm { padding: 6px 12px; font-size: 0.65rem; }
+        .toolbar {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+        .search-box {
+            flex: 1;
+            position: relative;
+        }
+        .search-box input {
+            width: 100%;
+            padding: 12px 15px 12px 40px;
+            background: rgba(0, 0, 0, 0.4);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 10px;
+            color: #fff;
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 0.9rem;
+            outline: none;
+            transition: all 0.3s;
+        }
+        .search-box input:focus {
+            border-color: var(--neon-cyan);
+            box-shadow: 0 0 15px rgba(0, 240, 255, 0.1);
+        }
+        .search-icon {
+            position: absolute;
+            left: 14px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #444;
+        }
+        .filter-select {
+            width: 140px;
+            padding: 12px;
+            background: rgba(0, 0, 0, 0.4);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 10px;
+            color: #fff;
+            font-family: 'Rajdhani', sans-serif;
+            outline: none;
+        }
+        .loaders-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+        }
+        .loader-card {
+            background: rgba(20, 20, 30, 0.6);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 14px;
+            padding: 25px;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s;
+            animation: cardEnter 0.4s ease;
+        }
+        @keyframes cardEnter {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .loader-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0;
+            width: 100%; height: 3px;
+            background: linear-gradient(90deg, var(--neon-cyan), var(--neon-purple));
+            transform: scaleX(0);
+            transform-origin: left;
+            transition: transform 0.3s;
+        }
+        .loader-card:hover::before { transform: scaleX(1); }
+        .loader-card:hover {
+            border-color: rgba(0, 240, 255, 0.2);
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.4);
+        }
+        .loader-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: start;
+            margin-bottom: 15px;
+        }
+        .loader-name {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1rem;
+            color: #fff;
+            word-break: break-all;
+            line-height: 1.3;
+        }
+        .loader-version {
+            display: inline-block;
+            padding: 3px 8px;
+            background: rgba(0, 240, 255, 0.1);
+            color: var(--neon-cyan);
+            font-size: 0.7rem;
+            border-radius: 4px;
+            border: 1px solid rgba(0, 240, 255, 0.2);
+            margin-top: 5px;
+        }
+        .loader-meta {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+            margin-bottom: 15px;
+        }
+        .meta-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 0.8rem;
+            color: #555;
+        }
+        .meta-item span { color: #777; }
+        .loader-desc {
+            color: #666;
+            font-size: 0.85rem;
+            margin-bottom: 15px;
+            line-height: 1.4;
+            min-height: 40px;
+        }
+        .loader-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-top: 15px;
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        .loader-stats {
+            display: flex;
+            gap: 15px;
+            font-size: 0.75rem;
+            color: #444;
+        }
+        .loader-actions { display: flex; gap: 8px; }
+        .btn-download {
+            background: rgba(0, 240, 255, 0.1);
+            color: var(--neon-cyan);
+            border: 1px solid rgba(0, 240, 255, 0.3);
+        }
+        .btn-download:hover {
+            background: rgba(0, 240, 255, 0.2);
+            box-shadow: 0 0 15px rgba(0, 240, 255, 0.2);
+        }
+        .btn-copy {
+            background: rgba(157, 0, 255, 0.1);
+            color: var(--neon-purple);
+            border: 1px solid rgba(157, 0, 255, 0.3);
+        }
+        .btn-copy:hover { background: rgba(157, 0, 255, 0.2); }
+        .status-indicator {
+            position: absolute;
+            top: 20px; right: 20px;
+            width: 8px; height: 8px;
+            border-radius: 50%;
+            background: var(--neon-green);
+            box-shadow: 0 0 10px var(--neon-green);
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.6; transform: scale(0.8); }
+        }
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #333;
+        }
+        .empty-state-icon {
+            font-size: 3.5rem;
+            margin-bottom: 15px;
+            opacity: 0.3;
+        }
+        .toast-container {
+            position: fixed;
+            bottom: 30px; right: 30px;
+            z-index: 1000;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .toast {
+            background: rgba(15, 15, 25, 0.98);
+            border: 1px solid;
+            border-radius: 10px;
+            padding: 15px 25px;
+            color: #fff;
+            font-family: 'Rajdhani', sans-serif;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+            animation: toastSlide 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            max-width: 400px;
+        }
+        @keyframes toastSlide {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+        .toast.success { border-color: var(--neon-green); color: var(--neon-green); }
+        .toast.error { border-color: var(--danger); color: var(--danger); }
+        .toast.info { border-color: var(--neon-cyan); color: var(--neon-cyan); }
+        .modal-overlay {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.85);
+            backdrop-filter: blur(8px);
+            z-index: 100;
+            display: none;
+            justify-content: center;
+            align-items: center;
+        }
+        .modal-overlay.active { display: flex; }
+        .modal {
+            background: var(--panel-bg);
+            border: 1px solid rgba(0, 240, 255, 0.2);
+            border-radius: 16px;
+            padding: 35px;
+            max-width: 500px;
+            width: 90%;
+            box-shadow: 0 25px 60px rgba(0, 0, 0, 0.6);
+            animation: modalPop 0.3s ease;
+        }
+        @keyframes modalPop {
+            from { transform: scale(0.9); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+        .modal-title {
+            font-family: 'Orbitron', sans-serif;
+            color: var(--neon-cyan);
+            margin-bottom: 20px;
+            font-size: 1.2rem;
+        }
+        .modal-actions {
+            display: flex;
+            gap: 12px;
+            margin-top: 25px;
+        }
+        .modal-actions .btn { flex: 1; }
+        .logs-panel { margin-top: 25px; }
+        .log-entry {
+            display: flex;
+            gap: 15px;
+            padding: 12px 15px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+            font-size: 0.85rem;
+            font-family: 'Courier New', monospace;
+        }
+        .log-time { color: #444; min-width: 80px; }
+        .log-user { color: var(--neon-cyan); min-width: 100px; }
+        .log-action { color: #666; }
+        .log-file { color: var(--neon-purple); }
+        @media (max-width: 1024px) {
+            .main-container { grid-template-columns: 1fr; }
+            .stats-bar { flex-wrap: wrap; }
+            .stat-card { min-width: calc(50% - 15px); }
+        }
+        @media (max-width: 640px) {
+            .header { flex-direction: column; gap: 15px; }
+            .stats-bar { padding: 15px; }
+            .stat-card { min-width: 100%; }
+            .main-container { padding: 15px; }
+        }
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: var(--dark-bg); }
+        ::-webkit-scrollbar-thumb {
+            background: rgba(0, 240, 255, 0.2);
+            border-radius: 3px;
+        }
+        .loading-ring {
+            display: inline-block;
+            width: 16px; height: 16px;
+            border: 2px solid rgba(0, 240, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: var(--neon-cyan);
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+    </style>
+</head>
+<body>
+    <div class="bg-grid"></div>
+    <div class="bg-orb orb-1"></div>
+    <div class="bg-orb orb-2"></div>
+
+    <!-- LOGIN SCREEN -->
+    <div class="login-screen" id="loginScreen">
+        <div class="login-box">
+            <div class="login-logo">COSMO HUB</div>
+            <div class="login-subtitle">Cloud Synced Backend</div>
+            <div class="role-selector">
+                <div class="role-btn active" data-role="user" onclick="selectRole('user')">User</div>
+                <div class="role-btn admin" data-role="admin" onclick="selectRole('admin')">Admin</div>
+            </div>
+            <input type="password" class="login-input" id="passwordInput" placeholder="Enter Access Code" onkeypress="if(event.key==='Enter')login()">
+            <button class="login-btn" onclick="login()">AUTHENTICATE</button>
+            <div class="login-error" id="loginError">Invalid access code</div>
+            <div style="margin-top: 20px; font-size: 0.75rem; color: #444;">
+                <span id="syncStatusText">Connecting to cloud...</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- MAIN APP -->
+    <div class="app" id="app">
+        <header class="header">
+            <div class="logo-area">
+                <div class="logo">COSMO HUB</div>
+                <span class="role-badge" id="roleBadge">ADMIN</span>
+            </div>
+            <div class="header-actions">
+                <div class="sync-status" id="syncStatus">
+                    <div class="sync-dot"></div>
+                    <span>Synced</span>
+                </div>
+                <div class="user-info">
+                    <div class="user-name" id="userName">brax</div>
+                    <div class="user-ip" id="userIP">IP: Detecting...</div>
+                </div>
+                <button class="logout-btn" onclick="logout()">LOGOUT</button>
+            </div>
+        </header>
+
+        <div class="stats-bar">
+            <div class="stat-card">
+                <div class="stat-icon cyan">📦</div>
+                <div class="stat-content">
+                    <h3 id="totalLoaders">0</h3>
+                    <p>Total Loaders</p>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon pink">⬇</div>
+                <div class="stat-content">
+                    <h3 id="totalDownloads">0</h3>
+                    <p>Downloads</p>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon green">👥</div>
+                <div class="stat-content">
+                    <h3 id="activeUsers">1</h3>
+                    <p>Active Now</p>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon purple">☁</div>
+                <div class="stat-content">
+                    <h3 id="cloudStatus">ON</h3>
+                    <p>Cloud Sync</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="main-container">
+            <!-- Left Panel: Upload -->
+            <div>
+                <div class="panel" id="uploadPanel">
+                    <div class="panel-header">
+                        <div class="panel-title">Add Loader</div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Product Name</label>
+                        <input type="text" class="form-input" id="productName" placeholder="e.g. COSMO AIO V6.1">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Version</label>
+                        <input type="text" class="form-input" id="version" placeholder="e.g. 6.1.0">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Category</label>
+                        <select class="form-select" id="category">
+                            <option value="loader">Loader</option>
+                            <option value="fix">System Fix</option>
+                            <option value="tool">Utility Tool</option>
+                            <option value="update">Update Patch</option>
+                            <option value="bypass">Bypass</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Description</label>
+                        <textarea class="form-textarea" id="description" placeholder="What's new in this version..."></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Download URL (GoFile, Google Drive, etc.)</label>
+                        <input type="url" class="form-input" id="downloadUrl" placeholder="https://...">
+                    </div>
+                    <div style="font-size: 0.75rem; color: #444; margin-top: -10px; margin-bottom: 15px;">
+                        Paste a direct download link. Files are NOT stored here — only metadata syncs to cloud.
+                    </div>
+
+                    <div class="toggle-row">
+                        <span class="toggle-label">Require Purchase (SellAuth)</span>
+                        <div class="toggle-switch" id="sellauthToggle" onclick="toggleSwitch(this)"></div>
+                    </div>
+                    <div class="toggle-row">
+                        <span class="toggle-label">Password Protected</span>
+                        <div class="toggle-switch" id="passwordToggle" onclick="toggleSwitch(this)"></div>
+                    </div>
+                    <div class="form-group" id="passwordField" style="display:none;">
+                        <label class="form-label">Download Password</label>
+                        <input type="text" class="form-input" id="downloadPassword" placeholder="Enter password...">
+                    </div>
+
+                    <button class="btn btn-primary btn-block" id="uploadBtn" onclick="addLoader()">
+                        <span>ADD TO CLOUD</span>
+                    </button>
+                </div>
+
+                <!-- Settings Panel (Admin Only) -->
+                <div class="panel" id="settingsPanel" style="margin-top: 25px;">
+                    <div class="panel-header">
+                        <div class="panel-title">⚙ Hub Settings</div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Change User Password</label>
+                        <input type="text" class="form-input" id="newUserPass" placeholder="New user access code">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Change Admin Password</label>
+                        <input type="text" class="form-input" id="newAdminPass" placeholder="New admin access code">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">SellAuth Shop ID</label>
+                        <input type="text" class="form-input" id="shopIdInput" placeholder="Your SellAuth shop ID">
+                    </div>
+                    <button class="btn btn-primary btn-block" onclick="saveSettings()">Save Settings</button>
+                </div>
+            </div>
+
+            <!-- Right Panel: Loaders List -->
+            <div>
+                <div class="toolbar">
+                    <div class="search-box">
+                        <span class="search-icon">🔍</span>
+                        <input type="text" id="searchInput" placeholder="Search loaders..." onkeyup="filterLoaders()">
+                    </div>
+                    <select class="filter-select" id="filterCategory" onchange="filterLoaders()">
+                        <option value="all">All Types</option>
+                        <option value="loader">Loaders</option>
+                        <option value="fix">Fixes</option>
+                        <option value="tool">Tools</option>
+                        <option value="update">Updates</option>
+                        <option value="bypass">Bypasses</option>
+                    </select>
+                </div>
+
+                <div class="panel">
+                    <div class="panel-header">
+                        <div class="panel-title">Active Loaders</div>
+                        <span style="color: #444; font-size: 0.8rem;" id="loaderCount">0 items</span>
+                    </div>
+                    <div id="loadersContainer">
+                        <div class="empty-state">
+                            <div class="empty-state-icon">📦</div>
+                            <div>Loading from cloud...</div>
+                            <div style="font-size: 0.8rem; margin-top: 10px;"><span class="loading-ring"></span></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Activity Logs (Admin Only) -->
+                <div class="panel logs-panel" id="logsPanel">
+                    <div class="panel-header">
+                        <div class="panel-title">📋 Activity Logs</div>
+                        <button class="btn btn-sm btn-secondary" onclick="clearLogs()">Clear</button>
+                    </div>
+                    <div id="logsContainer" style="max-height: 300px; overflow-y: auto;">
+                        <div style="color: #333; text-align: center; padding: 20px; font-size: 0.85rem;">Loading logs...</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Container -->
+    <div class="toast-container" id="toastContainer"></div>
+
+    <!-- Delete Modal -->
+    <div class="modal-overlay" id="deleteModal">
+        <div class="modal">
+            <div class="modal-title">⚠ Confirm Delete</div>
+            <p style="color: #888; line-height: 1.5;">Delete <strong style="color: #fff;" id="deleteFileName"></strong> from cloud? This cannot be undone.</p>
+            <div class="modal-actions">
+                <button class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+                <button class="btn btn-danger" onclick="confirmDelete()">Delete</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Password Modal -->
+    <div class="modal-overlay" id="passwordModal">
+        <div class="modal">
+            <div class="modal-title">🔒 Password Required</div>
+            <p style="color: #888; margin-bottom: 20px;">This loader is password protected.</p>
+            <input type="password" class="login-input" id="modalPasswordInput" placeholder="Enter download password" style="margin-bottom: 15px;">
+            <div class="modal-actions">
+                <button class="btn btn-secondary" onclick="closePasswordModal()">Cancel</button>
+                <button class="btn btn-primary" onclick="verifyPassword()">Download</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ==================== YOUR FIREBASE CONFIG (PRE-BAKED) ====================
+        const firebaseConfig = {
+            apiKey: "AIzaSyBe-Zp4HDhTd555UuLRtIA6i_rar-0Zg1A",
+            authDomain: "cosmo-hub-ace68.firebaseapp.com",
+            databaseURL: "https://cosmo-hub-ace68-default-rtdb.firebaseio.com",
+            projectId: "cosmo-hub-ace68",
+            storageBucket: "cosmo-hub-ace68.firebasestorage.app",
+            messagingSenderId: "695734307541",
+            appId: "1:695734307541:web:1e4724904b64e4d53e84b4"
+        };
+
+        // ==================== INIT FIREBASE ====================
+        let firebaseApp = null;
+        let database = null;
+        let firebaseConnected = false;
+
+        try {
+            firebaseApp = firebase.initializeApp(firebaseConfig);
+            database = firebase.database();
+            firebaseConnected = true;
+            document.getElementById('syncStatusText').textContent = 'Cloud connected - ready to login';
+        } catch (e) {
+            console.error('Firebase init failed:', e);
+            document.getElementById('syncStatusText').textContent = 'Cloud connection failed';
+        }
+
+        // ==================== CONFIGURATION ====================
+        let CONFIG = {
+            USER_CODE: 'cosmo2024',
+            ADMIN_CODE: 'cosmo-admin-2024',
+            SELLAUTH_SHOP_ID: ''
+        };
+
+        // ==================== STATE ====================
+        let currentUser = null;
+        let currentRole = 'user';
+        let loaders = [];
+        let logs = [];
+        let deleteTarget = null;
+        let passwordTarget = null;
+        let loadersRef = null;
+        let logsRef = null;
+
+        // ==================== AUTH ====================
+        function selectRole(role) {
+            currentRole = role;
+            document.querySelectorAll('.role-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelector(`[data-role="${role}"]`).classList.add('active');
+        }
+
+        function login() {
+            const input = document.getElementById('passwordInput').value;
+            const error = document.getElementById('loginError');
+            
+            const savedUser = localStorage.getItem('cosmoUserPass');
+            const savedAdmin = localStorage.getItem('cosmoAdminPass');
+            const userPass = savedUser || CONFIG.USER_CODE;
+            const adminPass = savedAdmin || CONFIG.ADMIN_CODE;
+            
+            if (currentRole === 'admin' && input === adminPass) {
+                currentUser = { name: 'brax', role: 'admin', ip: 'Local' };
+                initApp();
+            } else if (currentRole === 'user' && input === userPass) {
+                currentUser = { name: 'User', role: 'user', ip: 'Local' };
+                initApp();
+            } else {
+                error.style.display = 'block';
+                setTimeout(() => error.style.display = 'none', 3000);
+            }
+        }
+
+        function logout() {
+            currentUser = null;
+            currentRole = 'user';
+            document.getElementById('app').classList.remove('active');
+            document.getElementById('loginScreen').style.display = 'flex';
+            document.getElementById('passwordInput').value = '';
+            if (loadersRef) loadersRef.off();
+            if (logsRef) logsRef.off();
+        }
+
+        function initApp() {
+            document.getElementById('loginScreen').style.display = 'none';
+            document.getElementById('app').classList.add('active');
+            
+            document.getElementById('roleBadge').textContent = currentUser.role;
+            document.getElementById('roleBadge').className = `role-badge ${currentUser.role}`;
+            document.getElementById('userName').textContent = currentUser.name;
+            
+            fetch('https://api.ipify.org?format=json')
+                .then(r => r.json())
+                .then(d => {
+                    document.getElementById('userIP').textContent = `IP: ${d.ip}`;
+                    currentUser.ip = d.ip;
+                })
+                .catch(() => {
+                    document.getElementById('userIP').textContent = 'IP: Private';
+                });
+
+            const isAdmin = currentUser.role === 'admin';
+            document.getElementById('settingsPanel').style.display = isAdmin ? 'block' : 'none';
+            document.getElementById('logsPanel').style.display = isAdmin ? 'block' : 'none';
+            
+            if (!isAdmin) {
+                document.getElementById('uploadBtn').disabled = true;
+                document.getElementById('uploadBtn').innerHTML = '<span>ADMIN ONLY</span>';
+            }
+
+            const savedShopId = localStorage.getItem('cosmoShopId');
+            if (savedShopId) {
+                CONFIG.SELLAUTH_SHOP_ID = savedShopId;
+                document.getElementById('shopIdInput').value = savedShopId;
+            }
+
+            if (firebaseConnected) {
+                setupFirebaseListeners();
+            } else {
+                loaders = JSON.parse(localStorage.getItem('cosmoLoaders_v2')) || [];
+                logs = JSON.parse(localStorage.getItem('cosmoLogs')) || [];
+                renderLoaders();
+                updateStats();
+                renderLogs();
+                document.getElementById('cloudStatus').textContent = 'OFF';
+                document.getElementById('syncStatus').classList.add('offline');
+                document.getElementById('syncStatus').innerHTML = '<div class="sync-dot"></div><span>Local Only</span>';
+            }
+
+            addLog('LOGIN', `${currentUser.name} (${currentUser.role}) authenticated`);
+        }
+
+        // ==================== FIREBASE SYNC ====================
+        function setupFirebaseListeners() {
+            loadersRef = database.ref('loaders');
+            logsRef = database.ref('logs');
+
+            loadersRef.on('value', (snapshot) => {
+                const data = snapshot.val();
+                loaders = data ? Object.values(data) : [];
+                renderLoaders();
+                updateStats();
+            });
+
+            logsRef.on('value', (snapshot) => {
+                const data = snapshot.val();
+                logs = data ? Object.values(data) : [];
+                renderLogs();
+            });
+
+            database.ref('.info/connected').on('value', (snap) => {
+                const connected = snap.val();
+                if (connected) {
+                    document.getElementById('cloudStatus').textContent = 'ON';
+                    document.getElementById('syncStatus').classList.remove('offline');
+                    document.getElementById('syncStatus').innerHTML = '<div class="sync-dot"></div><span>Live Sync</span>';
+                } else {
+                    document.getElementById('cloudStatus').textContent = '...';
+                    document.getElementById('syncStatus').classList.add('offline');
+                    document.getElementById('syncStatus').innerHTML = '<div class="sync-dot"></div><span>Reconnecting</span>';
+                }
+            });
+        }
+
+        // ==================== ADD LOADER ====================
+        function toggleSwitch(el) {
+            el.classList.toggle('active');
+            if (el.id === 'passwordToggle') {
+                document.getElementById('passwordField').style.display = 
+                    el.classList.contains('active') ? 'block' : 'none';
+            }
+        }
+
+        async function addLoader() {
+            if (currentUser?.role !== 'admin') {
+                showToast('Admin access required', 'error');
+                return;
+            }
+
+            const name = document.getElementById('productName').value.trim();
+            const version = document.getElementById('version').value.trim() || '1.0.0';
+            const category = document.getElementById('category').value;
+            const description = document.getElementById('description').value.trim();
+            
+            // FIX: URL validation - auto-add https:// if missing
+            let downloadUrl = document.getElementById('downloadUrl').value.trim();
+            if (downloadUrl && !downloadUrl.startsWith('http://') && !downloadUrl.startsWith('https://')) {
+                downloadUrl = 'https://' + downloadUrl;
+            }
+            
+            const requireSellAuth = document.getElementById('sellauthToggle').classList.contains('active');
+            const requirePassword = document.getElementById('passwordToggle').classList.contains('active');
+            const downloadPassword = requirePassword ? document.getElementById('downloadPassword').value : null;
+
+            if (!name) {
+                showToast('Product name is required', 'error');
+                return;
+            }
+            if (!downloadUrl) {
+                showToast('Download URL is required', 'error');
+                return;
+            }
+
+            const loaderId = Date.now().toString();
+            const loader = {
+                id: loaderId,
+                name,
+                version,
+                category,
+                description,
+                downloadUrl,
+                requireSellAuth,
+                requirePassword,
+                downloadPassword,
+                uploadedBy: currentUser.name,
+                uploadedAt: new Date().toISOString(),
+                downloads: 0,
+                downloadLog: []
+            };
+
+            if (firebaseConnected) {
+                await database.ref('loaders/' + loaderId).set(loader);
+            } else {
+                loaders.unshift(loader);
+                localStorage.setItem('cosmoLoaders_v2', JSON.stringify(loaders));
+                renderLoaders();
+                updateStats();
+            }
+
+            // Reset form
+            document.getElementById('productName').value = '';
+            document.getElementById('version').value = '';
+            document.getElementById('description').value = '';
+            document.getElementById('downloadUrl').value = '';
+            document.getElementById('downloadPassword').value = '';
+            document.getElementById('sellauthToggle').classList.remove('active');
+            document.getElementById('passwordToggle').classList.remove('active');
+            document.getElementById('passwordField').style.display = 'none';
+
+            addLog('UPLOAD', `${loader.name} v${loader.version} by ${currentUser.name}`);
+            showToast('Loader added to cloud!', 'success');
+        }
+
+        // ==================== RENDER ====================
+        function renderLoaders() {
+            const container = document.getElementById('loadersContainer');
+            const filtered = getFilteredLoaders();
+            
+            document.getElementById('loaderCount').textContent = `${filtered.length} items`;
+
+            if (filtered.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-state-icon">📦</div>
+                        <div>No loaders found</div>
+                        <div style="font-size: 0.8rem; margin-top: 10px;">Add a loader to get started</div>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = '<div class="loaders-grid">' + filtered.map(loader => {
+                const isAdmin = currentUser?.role === 'admin';
+                
+                return `
+                <div class="loader-card">
+                    <div class="status-indicator"></div>
+                    <div class="loader-header">
+                        <div>
+                            <div class="loader-name">${escapeHtml(loader.name)}</div>
+                            <span class="loader-version">${escapeHtml(loader.version)}</span>
+                            ${loader.requireSellAuth ? '<span style="color: var(--neon-pink); font-size: 0.7rem; margin-left: 5px;">[SELLAUTH]</span>' : ''}
+                            ${loader.requirePassword ? '<span style="color: var(--warning); font-size: 0.7rem; margin-left: 5px;">[LOCKED]</span>' : ''}
+                        </div>
+                    </div>
+                    <div class="loader-meta">
+                        <div class="meta-item">🏷️ <span>${loader.category}</span></div>
+                        <div class="meta-item">👤 <span>${escapeHtml(loader.uploadedBy)}</span></div>
+                    </div>
+                    <div class="loader-desc">${escapeHtml(loader.description || 'No description provided')}</div>
+                    <div class="loader-footer">
+                        <div class="loader-stats">
+                            <span>⬇ ${loader.downloads}</span>
+                            <span>📅 ${new Date(loader.uploadedAt).toLocaleDateString()}</span>
+                        </div>
+                        <div class="loader-actions">
+                            <button class="btn btn-download btn-sm" onclick="initDownload('${loader.id}')">
+                                ⬇ Download
+                            </button>
+                            ${isAdmin ? `
+                            <button class="btn btn-copy btn-sm" onclick="copyLink('${loader.id}')">📋</button>
+                            <button class="btn btn-danger btn-sm" onclick="promptDelete('${loader.id}')">🗑</button>
+                            ` : ''}
+                        </div>
+                    </div>
+                </div>
+            `}).join('') + '</div>';
+        }
+
+        function getFilteredLoaders() {
+            const search = document.getElementById('searchInput').value.toLowerCase();
+            const category = document.getElementById('filterCategory').value;
+            
+            return loaders.filter(l => {
+                const matchesSearch = l.name.toLowerCase().includes(search) || 
+                                    l.description?.toLowerCase().includes(search);
+                const matchesCategory = category === 'all' || l.category === category;
+                return matchesSearch && matchesCategory;
+            });
+        }
+
+        function filterLoaders() {
+            renderLoaders();
+        }
+
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        // ==================== DOWNLOAD (FIXED) ====================
+        function initDownload(id) {
+            console.log('Download clicked for ID:', id);
+            const loader = loaders.find(l => l.id == id);
+            
+            if (!loader) {
+                showToast('Error: Loader not found', 'error');
+                return;
+            }
+
+            if (loader.requirePassword) {
+                passwordTarget = id;
+                document.getElementById('passwordModal').classList.add('active');
+                return;
+            }
+
+            if (loader.requireSellAuth && CONFIG.SELLAUTH_SHOP_ID) {
+                showToast('Verifying purchase...', 'info');
+                setTimeout(() => executeDownload(id), 1000);
+            } else {
+                executeDownload(id);
+            }
+        }
+
+        function executeDownload(id) {
+            const loader = loaders.find(l => l.id == id);
+            if (!loader) {
+                showToast('Error: Loader not found', 'error');
+                return;
+            }
+
+            if (!loader.downloadUrl || typeof loader.downloadUrl !== 'string' || loader.downloadUrl.trim() === '') {
+                showToast('Error: No download URL set for this loader', 'error');
+                return;
+            }
+
+            let url = loader.downloadUrl.trim();
+            if (!url.startsWith('http://') && !url.startsWith('https://')) {
+                url = 'https://' + url;
+            }
+
+            // Update stats
+            loader.downloads = (loader.downloads || 0) + 1;
+            if (!Array.isArray(loader.downloadLog)) loader.downloadLog = [];
+            loader.downloadLog.push({
+                user: currentUser?.name || 'Unknown',
+                ip: currentUser?.ip || 'Unknown',
+                time: new Date().toISOString()
+            });
+
+            if (firebaseConnected && database) {
+                database.ref('loaders/' + loader.id).update({
+                    downloads: loader.downloads,
+                    downloadLog: loader.downloadLog
+                }).catch(err => console.error('Firebase update error:', err));
+            }
+
+            // FIX: Use anchor tag instead of window.open() to bypass popup blockers
+            const a = document.createElement('a');
+            a.href = url;
+            a.target = '_blank';
+            a.rel = 'noopener noreferrer';
+            document.body.appendChild(a);
+            
+            try {
+                a.click();
+                console.log('Download opened:', url);
+            } catch (e) {
+                console.error('Anchor tag failed, trying window.open:', e);
+                window.open(url, '_blank');
+            }
+            
+            setTimeout(() => {
+                if (a.parentNode) document.body.removeChild(a);
+            }, 100);
+
+            updateStats();
+            addLog('DOWNLOAD', `${loader.name} by ${currentUser?.name || 'Unknown'}`);
+            showToast('Download started!', 'success');
+        }
+
+        function verifyPassword() {
+            const input = document.getElementById('modalPasswordInput').value;
+            const loader = loaders.find(l => l.id == passwordTarget);
+            
+            if (input === loader.downloadPassword) {
+                closePasswordModal();
+                executeDownload(passwordTarget);
+            } else {
+                showToast('Incorrect password', 'error');
+            }
+        }
+
+        function closePasswordModal() {
+            document.getElementById('passwordModal').classList.remove('active');
+            document.getElementById('modalPasswordInput').value = '';
+            passwordTarget = null;
+        }
+
+        function copyLink(id) {
+            const loader = loaders.find(l => l.id == id);
+            if (!loader) return;
+
+            const shareData = `COSMO Loader: ${loader.name} v${loader.version}
+Download: ${loader.downloadUrl || 'Available in COSMO HUB'}
+Category: ${loader.category}
+Status: Active`;
+
+            navigator.clipboard.writeText(shareData).then(() => {
+                showToast('Loader info copied!', 'success');
+            });
+        }
+
+        // ==================== DELETE ====================
+        function promptDelete(id) {
+            if (currentUser?.role !== 'admin') {
+                showToast('Admin only', 'error');
+                return;
+            }
+            const loader = loaders.find(l => l.id == id);
+            if (!loader) return;
+            deleteTarget = id;
+            document.getElementById('deleteFileName').textContent = loader.name;
+            document.getElementById('deleteModal').classList.add('active');
+        }
+
+        function closeModal() {
+            document.getElementById('deleteModal').classList.remove('active');
+            deleteTarget = null;
+        }
+
+        async function confirmDelete() {
+            if (deleteTarget && currentUser?.role === 'admin') {
+                const loader = loaders.find(l => l.id == deleteTarget);
+                
+                if (firebaseConnected) {
+                    await database.ref('loaders/' + deleteTarget).remove();
+                } else {
+                    loaders = loaders.filter(l => l.id != deleteTarget);
+                    localStorage.setItem('cosmoLoaders_v2', JSON.stringify(loaders));
+                }
+
+                addLog('DELETE', `${loader.name} deleted by ${currentUser.name}`);
+                showToast('Loader deleted from cloud', 'success');
+            }
+            closeModal();
+        }
+
+        // ==================== LOGS ====================
+        function addLog(action, detail) {
+            const logEntry = {
+                time: new Date().toISOString(),
+                user: currentUser?.name || 'System',
+                action,
+                detail
+            };
+
+            if (firebaseConnected && logsRef) {
+                const newLogRef = logsRef.push();
+                newLogRef.set(logEntry);
+                logsRef.once('value', (snapshot) => {
+                    const data = snapshot.val();
+                    if (data) {
+                        const keys = Object.keys(data);
+                        if (keys.length > 100) {
+                            keys.slice(0, keys.length - 100).forEach(key => {
+                                logsRef.child(key).remove();
+                            });
+                        }
+                    }
+                });
+            } else {
+                logs.unshift(logEntry);
+                if (logs.length > 100) logs = logs.slice(0, 100);
+                localStorage.setItem('cosmoLogs', JSON.stringify(logs));
+                renderLogs();
+            }
+        }
+
+        function renderLogs() {
+            const container = document.getElementById('logsContainer');
+            if (logs.length === 0) {
+                container.innerHTML = '<div style="color: #333; text-align: center; padding: 20px; font-size: 0.85rem;">No activity yet</div>';
+                return;
+            }
+            
+            container.innerHTML = logs.slice(0, 20).map(log => `
+                <div class="log-entry">
+                    <span class="log-time">${new Date(log.time).toLocaleTimeString()}</span>
+                    <span class="log-user">${escapeHtml(log.user)}</span>
+                    <span class="log-action">${log.action}:</span>
+                    <span class="log-file">${escapeHtml(log.detail)}</span>
+                </div>
+            `).join('');
+        }
+
+        function clearLogs() {
+            if (firebaseConnected) {
+                logsRef.remove();
+            } else {
+                logs = [];
+                localStorage.setItem('cosmoLogs', JSON.stringify(logs));
+                renderLogs();
+            }
+            showToast('Logs cleared', 'success');
+        }
+
+        // ==================== SETTINGS ====================
+        function saveSettings() {
+            const newUser = document.getElementById('newUserPass').value;
+            const newAdmin = document.getElementById('newAdminPass').value;
+            const shopId = document.getElementById('shopIdInput').value;
+
+            if (newUser) {
+                localStorage.setItem('cosmoUserPass', newUser);
+                showToast('User password updated', 'success');
+            }
+            if (newAdmin) {
+                localStorage.setItem('cosmoAdminPass', newAdmin);
+                showToast('Admin password updated', 'success');
+            }
+            if (shopId) {
+                CONFIG.SELLAUTH_SHOP_ID = shopId;
+                localStorage.setItem('cosmoShopId', shopId);
+                showToast('Shop ID saved', 'success');
+            }
+        }
+
+        // ==================== UTILS ====================
+        function updateStats() {
+            document.getElementById('totalLoaders').textContent = loaders.length;
+            document.getElementById('totalDownloads').textContent = loaders.reduce((a, b) => a + (b.downloads || 0), 0);
+        }
+
+        function showToast(message, type = 'success') {
+            const container = document.getElementById('toastContainer');
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            
+            const icons = { success: '✓', error: '✕', info: 'ℹ' };
+            toast.innerHTML = `${icons[type] || '•'} ${message}`;
+            container.appendChild(toast);
+            
+            setTimeout(() => {
+                toast.style.opacity = '0';
+                toast.style.transform = 'translateX(100%)';
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        }
+
+        // ==================== EVENTS ====================
+        document.getElementById('deleteModal').addEventListener('click', (e) => {
+            if (e.target === document.getElementById('deleteModal')) closeModal();
+        });
+        document.getElementById('passwordModal').addEventListener('click', (e) => {
+            if (e.target === document.getElementById('passwordModal')) closePasswordModal();
+        });
+    </script>
+</body>
+</html>
